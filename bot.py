@@ -4,7 +4,7 @@ import time
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import CommandStart
 
-import os
+import os import shutil
 from config import ADMIN_IDS, REQUIRED_CHANNELS
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
@@ -253,11 +253,26 @@ async def top10(message: types.Message):
 
     await message.answer(text)
 
+# ---------- Backup Task ----------
+
+async def backup_task():
+    while True:
+        try:
+            shutil.copy("bot.db", "bot_backup.db")
+        except:
+            pass
+
+        await asyncio.sleep(600)  # 10 minut
+
 
 # ---------- Runner ----------
 
 async def main():
     await init_db()
+
+    # BACKUP START
+    asyncio.create_task(backup_task())
+
     await dp.start_polling(bot)
 
 
