@@ -4,6 +4,8 @@ import time
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import CommandStart
 
+from aiogram.exceptions import TelegramRetryAfter
+
 import os
 import shutil
 from config import ADMIN_IDS, REQUIRED_CHANNELS
@@ -25,6 +27,15 @@ from db import (
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
+async def safe_send(chat_id: int, text: str):
+    try:
+        await bot.send_message(chat_id, text)
+    except TelegramRetryAfter as e:
+        await asyncio.sleep(e.retry_after)
+        await bot.send_message(chat_id, text)
+    except:
+        pass
+        
 BTN_LINK = "🔗 Referral link"
 BTN_STATS = "📊 Statistika"
 BTN_TOP = "🏆 Top 10"
@@ -32,7 +43,7 @@ BTN_CHECK = "✅ A'zolikni tekshirish"
 
 ADM_EXPORT = "📥 Statistika (.txt)"
 ADM_STOP = "🛑 Stop konkurs"
-
+        
 # ---------- Keyboard ----------
 
 def main_kb(is_admin: bool = False):
@@ -133,7 +144,7 @@ async def try_confirm_pending(user_id: int):
     if ok:
         try:
             new_cnt = await referral_count(pending_ref)
-            await bot.send_message(
+            await safe_send(
                 pending_ref,
                 f"Sizda yangi referral bor! ✅\nJami: {new_cnt}"
             )
