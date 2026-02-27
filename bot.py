@@ -4,7 +4,10 @@ import time
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import CommandStart
 
-from config import BOT_TOKEN, ADMIN_IDS, REQUIRED_CHANNELS
+import os
+from config import ADMIN_IDS, REQUIRED_CHANNELS
+
+BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 from db import (
     init_db,
