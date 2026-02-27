@@ -4,7 +4,8 @@ import time
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import CommandStart
 
-import os import shutil
+import os
+import shutil
 from config import ADMIN_IDS, REQUIRED_CHANNELS
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
