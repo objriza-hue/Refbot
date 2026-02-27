@@ -125,27 +125,24 @@ async def confirm_referral(invited_id: int, referrer_id: int, ts: int) -> bool:
 
     async with aiosqlite.connect(DB_NAME) as db:
 
-        cur = await db.execute("""
-        SELECT 1 FROM referrals WHERE invited_id=?
-        """, (invited_id,))
+        try:
+            await db.execute("""
+                INSERT OR IGNORE INTO referrals(invited_id, referrer_id, created_at)
+                VALUES(?,?,?)
+            """, (invited_id, referrer_id, ts))
 
-        if await cur.fetchone():
+            await db.execute("""
+                UPDATE users
+                SET referrer_id=?, pending_referrer_id=NULL
+                WHERE user_id=?
+            """, (referrer_id, invited_id))
+
+            await db.commit()
+
+            return True
+
+        except:
             return False
-
-        await db.execute("""
-        INSERT INTO referrals(invited_id, referrer_id, created_at)
-        VALUES(?,?,?)
-        """, (invited_id, referrer_id, ts))
-
-        await db.execute("""
-        UPDATE users
-        SET referrer_id=?, pending_referrer_id=NULL
-        WHERE user_id=?
-        """, (referrer_id, invited_id))
-
-        await db.commit()
-
-    return True
 
 
 async def referral_count(user_id: int) -> int:
