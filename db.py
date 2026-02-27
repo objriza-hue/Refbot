@@ -206,3 +206,22 @@ async def export_all_ranked():
         """)
 
         return await cur.fetchall()
+
+import shutil
+import asyncio
+
+DB_NAME = "bot.db"
+
+
+async def backup_task():
+
+    while True:
+        try:
+            backup_file = "bot_backup.db"
+
+            shutil.copy(DB_NAME, backup_file)
+
+        except:
+            pass
+
+        await asyncio.sleep(600)  # 10 minut
